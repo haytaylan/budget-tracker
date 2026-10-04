@@ -51,7 +51,7 @@ export type FireChip = {
 
 type FireThresholdKey = 'pct25' | 'pct50' | 'pct75' | 'target' | FireTargetType | 'barista';
 
-type FireBuckets = Record<'accounts' | 'portfolios' | 'ventures' | 'vehicles' | 'loans', number>;
+type FireBuckets = Record<'accounts' | 'portfolios' | 'properties' | 'ventures' | 'vehicles' | 'loans', number>;
 
 type FireSeed = ReturnType<typeof deriveFireSeed>;
 
@@ -114,6 +114,7 @@ const MILESTONES = [
 const ZERO_BUCKETS: FireBuckets = {
   accounts: 0,
   portfolios: 0,
+  properties: 0,
   ventures: 0,
   vehicles: 0,
   loans: 0,
@@ -125,6 +126,7 @@ const toFireBuckets = ({ point }: { point: endpointsTypes.NetWorthHistoryPoint }
     point.liabilities[ACCOUNT_CATEGORIES.creditCard] +
     point.liabilities[ACCOUNT_CATEGORIES.overdraft],
   portfolios: point.assets.investments,
+  properties: point.assets.properties,
   ventures: point.assets.ventures,
   vehicles: point.assets.vehicles,
   loans: point.liabilities[ACCOUNT_CATEGORIES.loan],
@@ -135,6 +137,7 @@ const includedValues = ({ buckets, settings }: { buckets: FireBuckets; settings:
   buckets.portfolios,
   ...(settings.includeVentures ? [buckets.ventures] : []),
   ...(settings.includeVehicles ? [buckets.vehicles] : []),
+  ...(settings.includeProperties ? [buckets.properties] : []),
   ...(settings.includeLoans ? [buckets.loans] : []),
 ];
 

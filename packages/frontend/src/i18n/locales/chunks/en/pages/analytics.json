@@ -221,6 +221,7 @@
         "countsPortfolios": "Investment portfolios",
         "countsVentures": "Ventures",
         "countsVehicles": "Vehicles",
+        "countsProperties": "Properties",
         "countsLoans": "Loans",
         "countsHint": "Cash and portfolios always count. Loan payments already count as spending, so loans are off by default.",
         "archivedNote": "{count} archived account excluded from stats still holds {amount}. {link} | {count} archived accounts excluded from stats still hold {amount}. {link}",
