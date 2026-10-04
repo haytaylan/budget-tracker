@@ -53,9 +53,9 @@ interface PropertyCompute {
   purchaseDate: string;
   annualRatePct: number;
   /**
-   * Anchor history in chronological order. First entry is the purchase-or-last-
-   * persisted anchor, then each manual override (`transfer_out_wallet` tx) resets
-   * the anchor to the curve-projected value plus the signed override amount.
+   * Anchor history in chronological order. Starts at purchase, then each manual
+   * override (`transfer_out_wallet` tx) resets the anchor to the curve-projected
+   * value plus the signed override amount.
    */
   anchors: PropertyAnchor[];
 }
@@ -84,7 +84,7 @@ export const calculatePropertiesBalanceHistory = async ({
     userBaseCurrencyPromise,
     Properties.findAll({
       where: { userId },
-      include: [{ model: Accounts, attributes: ['id', 'currencyCode', 'excludeFromStats'] }],
+      include: [{ model: Accounts, as: 'account', attributes: ['id', 'currencyCode', 'excludeFromStats'] }],
     }),
   ]);
 
@@ -128,16 +128,13 @@ export const calculatePropertiesBalanceHistory = async ({
   }
 
   const propertyComputes: PropertyCompute[] = activeProperties.map((property) => {
-    const startingAnchorValue = property.valueAnchor ?? property.purchasePrice;
-    const startingAnchorDate = property.valueAnchorDate ?? property.purchaseDate;
-
     const compute: PropertyCompute = {
       id: property.id,
       accountId: property.accountId,
       accountCurrencyCode: property.account.currencyCode,
       purchaseDate: property.purchaseDate,
       annualRatePct: Number(property.annualAppreciationRatePct),
-      anchors: [{ date: startingAnchorDate, valueCents: startingAnchorValue.toCents() }],
+      anchors: [{ date: property.purchaseDate, valueCents: property.purchasePrice.toCents() }],
     };
 
     const txs = txsByAccount.get(property.accountId) ?? [];

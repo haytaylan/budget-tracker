@@ -15,6 +15,19 @@ import { computed } from 'vue';
 
 import { flattenAccounts } from './account-totals';
 
+const isVehicleAccount = (account: AccountModel) => account.accountCategory === ACCOUNT_CATEGORIES.vehicle;
+const isPropertyAccount = (account: AccountModel) => account.accountCategory === ACCOUNT_CATEGORIES.property;
+const isLoanAccount = (account: AccountModel) => account.accountCategory === ACCOUNT_CATEGORIES.loan;
+
+export const isSidebarBankAccount = ({
+  account,
+  accountsInGroups,
+}: {
+  account: AccountModel;
+  accountsInGroups: Record<string, AccountModel>;
+}) =>
+  !accountsInGroups[account.id] && !isVehicleAccount(account) && !isPropertyAccount(account) && !isLoanAccount(account);
+
 /**
  * Per-section account splits, base-currency totals and visibility flags for the accounts view.
  * Every query here is keyed the same way as its standalone counterpart, so these dedupe with the
@@ -36,15 +49,14 @@ export const useSidebarSectionTotals = () => {
 
   const accountsInGroups = computed(() => flattenAccounts({ groups: accountGroups.value }));
 
-  // Vehicle and loan accounts get their own "Cars" and "Loans" sections, so keep
+  // Vehicle, property and loan accounts get their own dedicated sections, so keep
   // them out of the Bank Accounts list.
-  const isVehicleAccount = (account: AccountModel) => account.accountCategory === ACCOUNT_CATEGORIES.vehicle;
-  const isPropertyAccount = (account: AccountModel) => account.accountCategory === ACCOUNT_CATEGORIES.property;
-  const isLoanAccount = (account: AccountModel) => account.accountCategory === ACCOUNT_CATEGORIES.loan;
   const vehicleAccounts = computed(() => activeAccounts.value.filter(isVehicleAccount));
   const propertyAccounts = computed(() => activeAccounts.value.filter(isPropertyAccount));
   const accountsWithoutGroups = computed(() =>
-    activeAccounts.value.filter((i) => !accountsInGroups.value[i.id] && !isVehicleAccount(i) && !isLoanAccount(i)),
+    activeAccounts.value.filter((account) =>
+      isSidebarBankAccount({ account, accountsInGroups: accountsInGroups.value }),
+    ),
   );
 
   const { baseCurrencyCode, sumBaseBalance } = useBaseBalanceTotals();

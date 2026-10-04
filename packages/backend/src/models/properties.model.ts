@@ -110,10 +110,10 @@ export default class Properties extends Model {
   declare createdAt: Date;
   declare updatedAt: Date;
 
-  @BelongsTo(() => Accounts, 'accountId')
+  @BelongsTo(() => Accounts, { foreignKey: 'accountId', as: 'account' })
   account!: Accounts;
 
-  @BelongsTo(() => Accounts, 'loanAccountId')
+  @BelongsTo(() => Accounts, { foreignKey: 'loanAccountId', as: 'loanAccount' })
   loanAccount!: Accounts | null;
 
   @BelongsTo(() => Users)

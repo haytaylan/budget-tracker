@@ -912,6 +912,29 @@ describe('[Stats] Combined balance history', () => {
         expect(entry.propertiesBalance).toBe(0);
       }
     }, 60_000);
+
+    it('does not apply a revaluation on top of the latest persisted anchor', async () => {
+      const property = await helpers.createProperty({
+        ...buildPropertyPayload(),
+        raw: true,
+      });
+      const targetValue = 30_000;
+
+      await helpers.overridePropertyValue({
+        id: property.id,
+        accountId: property.accountId,
+        targetValue,
+      });
+
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const data = (await helpers.getCombinedBalanceHistory({
+        from: today,
+        to: today,
+        raw: true,
+      })) as CombinedBalanceHistoryItem[];
+
+      expect(data.find((entry) => entry.date === today)?.propertiesBalance).toBeCloseTo(targetValue, 2);
+    }, 60_000);
   });
 
   describe('Loans in combined balance history', () => {
